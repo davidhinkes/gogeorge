@@ -7,11 +7,11 @@ import (
 )
 
 type PID struct {
-	history []float64
-  integral float64
-	p       float64
-	i       float64
-	d       float64
+	history  []float64
+	integral float64
+	p        float64
+	i        float64
+	d        float64
 }
 
 func (p *PID) Do(e float64) (command float64) {
@@ -19,10 +19,10 @@ func (p *PID) Do(e float64) (command float64) {
 		p.history[i] = p.history[i+1]
 	}
 	p.history[len(p.history)-1] = e
-  p.integral += e
-  rate, _ := leastSquares(p.history)
-  command = p.p*e + p.i*p.integral + p.d*rate
-  return
+	p.integral += e
+	rate, _ := leastSquares(p.history)
+	command = p.p*e + p.i*p.integral + p.d*rate
+	return
 }
 
 func MakePID(p, i, d float64, historySize int) *PID {
@@ -43,19 +43,19 @@ func leastSquares(x []float64) (float64, float64) {
 		yVector.Set(i, 0, x[i])
 	}
 	qMatrix, rMatrix := aMatrix.QR()
-  rMatrix = multiply(eye(2, len(x)), rMatrix)
+	rMatrix = multiply(eye(2, len(x)), rMatrix)
 	rInverseMatrix, err := rMatrix.Inverse()
 	if err != nil {
-		log.Fatalf("R inverse: %v",err)
+		log.Fatalf("R inverse: %v", err)
 	}
 	qTransposeMatrix := qMatrix.Transpose()
 	xMatrix := multiply(rInverseMatrix, qTransposeMatrix, yVector)
-  return xMatrix.Get(0,0), xMatrix.Get(1,0)
+	return xMatrix.Get(0, 0), xMatrix.Get(1, 0)
 }
 
 func multiply(ms ...*m.DenseMatrix) *m.DenseMatrix {
 	ret := ms[0]
-  var err error
+	var err error
 	for i := 1; i < len(ms); i++ {
 		ret, err = ret.TimesDense(ms[i])
 		if err != nil {
@@ -66,13 +66,13 @@ func multiply(ms ...*m.DenseMatrix) *m.DenseMatrix {
 }
 
 func eye(i, j int) *m.DenseMatrix {
-  ret := m.Zeros(i,j)
-  n := i
-  if j < i {
-    n = j
-  }
-  for k := 0; k < n; k++ {
-    ret.Set(k,k, 1)
-  }
-  return ret
+	ret := m.Zeros(i, j)
+	n := i
+	if j < i {
+		n = j
+	}
+	for k := 0; k < n; k++ {
+		ret.Set(k, k, 1)
+	}
+	return ret
 }
