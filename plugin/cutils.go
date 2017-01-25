@@ -1,4 +1,4 @@
-package main 
+package main
 
 import (
 	//#include <stdlib.h>

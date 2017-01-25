@@ -7,34 +7,29 @@ import (
 )
 
 type PID struct {
-	history  []float64
+	rate     Rate
 	integral float64
 	p        float64
 	i        float64
 	d        float64
 }
 
-func (p *PID) Do(e float64) (command float64) {
-	for i := 0; i < len(p.history)-1; i++ {
-		p.history[i] = p.history[i+1]
-	}
-	p.history[len(p.history)-1] = e
+func (p *PID) Do(e float64) (float64) {
 	p.integral += e
-	rate, _ := leastSquares(p.history)
-	command = p.p*e + p.i*p.integral + p.d*rate
-	return
+	d := p.rate.Do(e)
+	return p.p*e + p.i*p.integral + p.d*d
 }
 
-func MakePID(p, i, d float64, historySize int) *PID {
+func NewPID(p, i, d float64, historySize int) *PID {
 	return &PID{
-		history: make([]float64, historySize),
-		p:       p,
-		i:       i,
-		d:       d,
+		rate: MakeRate(historySize),
+		p:    p,
+		i:    i,
+		d:    d,
 	}
 }
 
-func leastSquares(x []float64) (float64, float64) {
+func LeastSquares(x []float64) (float64, float64) {
 	aMatrix := m.Zeros(len(x), 2)
 	yVector := m.Zeros(len(x), 1)
 	for i := range x {

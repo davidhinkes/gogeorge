@@ -13,7 +13,7 @@ func TestLeastSquares(t *testing.T) {
 	for i := range xs {
 		xs[i] = m*float64(i) + b
 	}
-	gotM, gotB := leastSquares(xs)
+	gotM, gotB := LeastSquares(xs)
 	same(t, m, gotM, 1e-5, "m")
 	same(t, b, gotB, 1e-5, "b")
 }
