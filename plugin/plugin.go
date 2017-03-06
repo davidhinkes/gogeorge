@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 	"runtime/debug"
-	"sync"
 	"unsafe"
+	"net/http"
 
 	"github.com/davidhinkes/gogeorge/controller"
 	"github.com/davidhinkes/gogeorge/internal/xplane"
@@ -33,7 +33,6 @@ var (
 type pluginState struct {
 	callbackID xplane.Callback
 	roll       float64
-	lock       sync.Mutex
 	controller *controller.T
 	dataRefs   map[string]*xplane.DataRef
 }
@@ -60,6 +59,7 @@ func XPluginStart(outName, outSig, outDesc *C.char) C.int {
 		controller: controller.New(deltaT),
 		dataRefs:   make(map[string]*xplane.DataRef),
 	}
+	go http.ListenAndServe(":8080", nil)
 	return C.int(1)
 }
 
@@ -91,20 +91,27 @@ func callback(_ C.float, _ C.float, i C.int, _ unsafe.Pointer) C.float {
 			log.Fatal(msg)
 		}
 	}()
-	state.lock.Lock()
-	defer state.lock.Unlock()
-	state.controller.Do(state.mkSensorData())
+	state.writeActuatorCommand(state.controller.Do(state.mkSensorData()))
 	return deltaT
 }
 
 func (p *pluginState) mkSensorData() controller.SensorData {
 	var roll float32
-	p.getDataRef("sim/cockpit2/gauges/indicators/heading_electric_deg_mag_pilot").Get(&roll)
+	var heading float32
+	p.getDataRef("sim/cockpit2/gauges/indicators/roll_electric_deg_pilot").Get(&roll)
+	p.getDataRef("sim/cockpit2/gauges/indicators/heading_electric_deg_mag_pilot").Get(&heading)
 	return controller.SensorData{
 		RollDegrees: float64(roll),
+		HeadingDegrees: float64(heading),
 	}
-	// p.getDataRef("sim/cockpit2/gauges/indicators/heading_electric_deg_mag_pilot")
 }
 
 func (p *pluginState) writeActuatorCommand(c controller.ActuatorCommand) {
+	override := p.getDataRef("sim/operation/override/override_joystick_roll")
+	if !c.Enabled {
+		override.Set(int(0))
+		return
+	}
+	override.Set(int(1))
+	p.getDataRef("sim/joystick/yoke_roll_ratio").Set(float32(c.YokeRoll))
 }

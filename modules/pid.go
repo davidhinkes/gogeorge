@@ -3,24 +3,29 @@ package modules
 import (
 	"log"
 
+	"github.com/davidhinkes/gogeorge/internal/io"
 	m "github.com/skelterjohn/go.matrix"
 )
+
+type getter interface {
+	Get() float64
+}
 
 type PID struct {
 	rate     Rate
 	integral float64
-	p        float64
-	i        float64
-	d        float64
+	p        getter
+	i        getter
+	d 			 getter
 }
 
 func (p *PID) Do(e float64) (float64) {
 	p.integral += e
 	d := p.rate.Do(e)
-	return p.p*e + p.i*p.integral + p.d*d
+	return p.p.Get()*e + p.i.Get()*p.integral + p.d.Get()*d
 }
 
-func NewPID(p, i, d float64, historySize int) *PID {
+func NewPID(p, i, d *io.Float64, historySize int) *PID {
 	return &PID{
 		rate: MakeRate(historySize),
 		p:    p,
