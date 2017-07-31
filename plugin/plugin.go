@@ -5,9 +5,9 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"runtime/debug"
 	"unsafe"
-	"net/http"
 
 	"github.com/davidhinkes/gogeorge/controller"
 	"github.com/davidhinkes/gogeorge/internal/xplane"
@@ -101,7 +101,7 @@ func (p *pluginState) mkSensorData() controller.SensorData {
 	p.getDataRef("sim/cockpit2/gauges/indicators/roll_electric_deg_pilot").Get(&roll)
 	p.getDataRef("sim/cockpit2/gauges/indicators/heading_electric_deg_mag_pilot").Get(&heading)
 	return controller.SensorData{
-		RollDegrees: float64(roll),
+		RollDegrees:    float64(roll),
 		HeadingDegrees: float64(heading),
 	}
 }

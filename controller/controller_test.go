@@ -1,9 +1,9 @@
 package controller
 
 import (
-  "testing"
+	"testing"
 )
 
 func TestController(t *testing.T) {
-  New(0.1).Do(SensorData{})
+	New(0.1).Do(SensorData{})
 }

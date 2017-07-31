@@ -9,13 +9,13 @@ func TestAngleFilter(t *testing.T) {
 		in   []float64
 		want float64
 	}{
-    {in: []float64{3}, want: 3},
-    {in: []float64{359}, want: -1},
-    {in: []float64{3,4}, want: 4},
-    {in: []float64{3,-3}, want: -3},
-    {in: []float64{300}, want: -60},
-    {in: []float64{300, 1}, want: 1}, // this is correct, see above
-  }
+		{in: []float64{3}, want: 3},
+		{in: []float64{359}, want: -1},
+		{in: []float64{3, 4}, want: 4},
+		{in: []float64{3, -3}, want: -3},
+		{in: []float64{300}, want: -60},
+		{in: []float64{300, 1}, want: 1}, // this is correct, see above
+	}
 	for _, c := range cases {
 		f := AngleFilter{}
 		var got float64

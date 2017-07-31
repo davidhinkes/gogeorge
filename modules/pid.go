@@ -16,10 +16,10 @@ type PID struct {
 	integral float64
 	p        getter
 	i        getter
-	d 			 getter
+	d        getter
 }
 
-func (p *PID) Do(e float64) (float64) {
+func (p *PID) Do(e float64) float64 {
 	p.integral += e
 	d := p.rate.Do(e)
 	return p.p.Get()*e + p.i.Get()*p.integral + p.d.Get()*d
